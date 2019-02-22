@@ -7,6 +7,7 @@ import com.sinochem.finance.hsy.enums.RspStatusEnum;
 import com.sinochem.finance.hsy.response.ObjectResponse;
 import com.sinochem.finance.hsy.service.ITOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 
 /**
  * @Author: heshouyou
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Service(version = "1.0.0",protocol = "${dubbo.protocol.id}",
         application = "${dubbo.application.id}",registry = "${dubbo.registry.id}",
         timeout = 3000)
+@RefreshScope
 public class OrderDubboServiceImpl implements OrderDubboService {
 
     @Autowired

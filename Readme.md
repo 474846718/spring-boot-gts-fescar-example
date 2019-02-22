@@ -32,7 +32,6 @@ Fescar全称为：Fast Easy Commit And Rollback，是阿里巴巴公司基于TXC
 四、实现以及规划
 
 * 当前版本实现SpringBoot + Dubbo + Mybatis + Nacos +Fescar技术整合，实现如何在微服务架构中使用分布式事务框架Fescar
-* 之后版本将完善流程，并使用Nacos作为配置中心（现在Nacos只是作为注册中心）
 * 接下来版本等到Fescar完善到0.5.0版本后开始支持SringCloud相关技术栈，将实现在Cloud微服务架构中解决分布式事务
 * 计划暂定上述
 
@@ -71,3 +70,291 @@ Fescar全称为：Fast Easy Commit And Rollback，是阿里巴巴公司基于TXC
    ```
 
 10. 再次请求测试发生异常后全局事务是否被回滚
+
+六、nacos配置中心
+
+1. 将上述案例dubbo调用模块resources目录下的application.properties中的配置复制到nacos配置中心，并在resources目录下新建bootstrap.properties文件，文件中的spring.application.name的值为配置的dataid，具体如图所示：
+
+   ![1550824725416](C:\Users\heshouyou\AppData\Roaming\Typora\typora-user-images\1550824725416.png)
+
+   ![1550824557296](C:\Users\heshouyou\AppData\Roaming\Typora\typora-user-images\1550824557296.png)
+
+   ![1550825358155](C:\Users\heshouyou\AppData\Roaming\Typora\typora-user-images\1550825358155.png)
+
+2. 给具有@Value或者通过${}引用配置文件值得类加上@refreshScope注解，当配置中心配置变更时会实时推送给应用，spring容器会重新加载具有该注解的bean
+
+   说明：使用bootstrap.properties中设置nacos地址，这是nacos适配springcloud的方式。如果没有使用springcloud请查看官网博客学习配置使用  https://nacos.io/en-us/docs/quick-start.html
+
+3. 配置中心具体内容如下：
+
+   * dataid 为： account-fescar-example.properties
+
+   * 配置内容：server.port=8102
+
+     spring.application.name=account-gts-fescar-example
+
+     \#====================================Dubbo config===============================================
+
+     dubbo.application.id= account-gts-fescar-example
+
+     dubbo.application.name= account-gts-fescar-example
+
+     dubbo.protocol.id=dubbo
+
+     dubbo.protocol.name=dubbo
+
+     dubbo.registry.id=dubbo-account-fescar
+
+     dubbo.registry.address=nacos://127.0.0.1:8848
+
+     dubbo.protocol.port=20880
+
+     dubbo.application.qosEnable=false
+
+     \#===================================注册中心配置==========================================
+
+     \#Nacos注册中心
+
+     spring.cloud.nacos.discovery.server-addr=127.0.0.1:8848
+
+     management.endpoints.web.exposure.include=*
+
+     \#====================================mysql datasource================================
+
+     spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+
+     spring.datasource.type=com.alibaba.druid.pool.DruidDataSource
+
+     spring.datasource.url=jdbc:mysql://127.0.0.1:3306/db_gts_fescar?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
+
+     spring.datasource.username=root
+
+     spring.datasource.password=root
+
+     \#自动提交
+
+     spring.datasource.default-auto-commit=true
+
+     \#指定updates是否自动提交
+
+     spring.datasource.auto-commit=true
+
+     spring.datasource.maximum-pool-size=100
+
+     spring.datasource.max-idle=10
+
+     spring.datasource.max-wait=10000
+
+     spring.datasource.min-idle=5
+
+     spring.datasource.initial-size=5
+
+     spring.datasource.validation-query=SELECT 1
+
+     spring.datasource.test-on-borrow=false
+
+     spring.datasource.test-while-idle=true
+
+     \# 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+
+     spring.datasource.time-between-eviction-runs-millis=18800
+
+     \# 配置一个连接在池中最小生存的时间，单位是毫秒
+
+     spring.datasource.minEvictableIdleTimeMillis=300000
+
+     \#=====================================mybatis配置======================================
+
+     mybatis.mapper-locations=classpath*:/mapper/*.xml
+
+     
+
+   * dataid 为： order-fescar-example.properties
+
+   * 配置内容：server.port=8101
+
+     spring.application.name=order-gts-fescar-example
+
+     \#====================================Dubbo config===============================================
+
+     dubbo.application.id= order-gts-fescar-example
+
+     dubbo.application.name= order-gts-fescar-example
+
+     dubbo.protocol.id=dubbo
+
+     dubbo.protocol.name=dubbo
+
+     dubbo.registry.id=dubbo-order-fescar
+
+     dubbo.registry.address=nacos://127.0.0.1:8848
+
+     dubbo.protocol.port=20881
+
+     dubbo.application.qosEnable=false
+
+     \#===================================注册中心配置==========================================
+
+     \#Nacos注册中心
+
+     spring.cloud.nacos.discovery.server-addr=127.0.0.1:8848
+
+     management.endpoints.web.exposure.include=*
+
+     \#====================================mysql datasource================================
+
+     spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+
+     spring.datasource.type=com.alibaba.druid.pool.DruidDataSource
+
+     spring.datasource.url=jdbc:mysql://127.0.0.1:3306/db_gts_fescar?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
+
+     spring.datasource.username=root
+
+     spring.datasource.password=root
+
+     \#自动提交
+
+     spring.datasource.default-auto-commit=true
+
+     \#指定updates是否自动提交
+
+     spring.datasource.auto-commit=true
+
+     spring.datasource.maximum-pool-size=100
+
+     spring.datasource.max-idle=10
+
+     spring.datasource.max-wait=10000
+
+     spring.datasource.min-idle=5
+
+     spring.datasource.initial-size=5
+
+     spring.datasource.validation-query=SELECT 1
+
+     spring.datasource.test-on-borrow=false
+
+     spring.datasource.test-while-idle=true
+
+     \# 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+
+     spring.datasource.time-between-eviction-runs-millis=18800
+
+     \# 配置一个连接在池中最小生存的时间，单位是毫秒
+
+     spring.datasource.minEvictableIdleTimeMillis=300000
+
+     \#=====================================mybatis配置======================================
+
+     mybatis.mapper-locations=classpath*:/mapper/*.xml
+
+     
+
+   * dataid 为： storage-fescar-example.properties
+
+   * 配置内容：server.port=8100
+
+     spring.application.name=storage-gts-fescar-example
+
+     \#====================================Dubbo config===============================================
+
+     dubbo.application.id= storage-gts-fescar-example
+
+     dubbo.application.name= storage-gts-fescar-example
+
+     dubbo.protocol.id=dubbo
+
+     dubbo.protocol.name=dubbo
+
+     dubbo.registry.id=dubbo-storage-fescar
+
+     dubbo.registry.address=nacos://127.0.0.1:8848
+
+     dubbo.protocol.port=20882
+
+     dubbo.application.qosEnable=false
+
+     \#===================================注册中心配置==========================================
+
+     \#Nacos注册中心
+
+     spring.cloud.nacos.discovery.server-addr=127.0.0.1:8848
+
+     management.endpoints.web.exposure.include=*
+
+     \#====================================mysql datasource================================
+
+     spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+
+     spring.datasource.type=com.alibaba.druid.pool.DruidDataSource
+
+     spring.datasource.url=jdbc:mysql://127.0.0.1:3306/db_gts_fescar?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
+
+     spring.datasource.username=root
+
+     spring.datasource.password=root
+
+     \#自动提交
+
+     spring.datasource.default-auto-commit=true
+
+     \#指定updates是否自动提交
+
+     spring.datasource.auto-commit=true
+
+     spring.datasource.maximum-pool-size=100
+
+     spring.datasource.max-idle=10
+
+     spring.datasource.max-wait=10000
+
+     spring.datasource.min-idle=5
+
+     spring.datasource.initial-size=5
+
+     spring.datasource.validation-query=SELECT 1
+
+     spring.datasource.test-on-borrow=false
+
+     spring.datasource.test-while-idle=true
+
+     \# 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+
+     spring.datasource.time-between-eviction-runs-millis=18800
+
+     \# 配置一个连接在池中最小生存的时间，单位是毫秒
+
+     spring.datasource.minEvictableIdleTimeMillis=300000
+
+     \#=====================================mybatis配置======================================
+
+     mybatis.mapper-locations=classpath*:/mapper/*.xml
+
+     
+
+   * dataid 为： dubbo-fescar-example.properties
+
+   * 配置内容：server.port=8104
+
+     spring.application.name=dubbo-gts-fescar-example
+
+     \#============================dubbo config==============================================
+
+     dubbo.application.id=dubbo-gts-fescar-example
+
+     dubbo.application.name=dubbo-gts-fescar-example
+
+     dubbo.protocol.id=dubbo
+
+     dubbo.protocol.name=dubbo
+
+     dubbo.protocol.port=10001
+
+     dubbo.registry.id=dubbo-gts-fescar
+
+     dubbo.registry.address=nacos://127.0.0.1:8848
+
+     dubbo.provider.version=1.0.0
+
+     dubbo.application.qosEnable=false
