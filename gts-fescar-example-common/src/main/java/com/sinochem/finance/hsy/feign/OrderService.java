@@ -18,5 +18,5 @@ public interface OrderService {
      * 创建订单
      */
     @PostMapping("/order/create_order")
-    ObjectResponse<OrderDTO> createOrder(@RequestBody OrderDTO orderDTO);
+    OrderDTO createOrder(@RequestBody OrderDTO orderDTO);
 }
